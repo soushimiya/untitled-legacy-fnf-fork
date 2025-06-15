@@ -81,28 +81,32 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			default:
-				var ymlPath = "assets/data/characters/" + curCharacter + ".yaml";
-				if (!Assets.exists(ymlPath))
+				var yamlPath = "assets/data/characters/" + curCharacter + ".yaml";
+				if (!Assets.exists(yamlPath))
 				{
-					ymlPath = "assets/data/characters/bf.yaml";
+					yamlPath = "assets/data/characters/bf.yaml";
 				}
 
-				var yml = Yaml.parse(Assets.getText(ymlPath), Parser.options().useObjects());
+				var yml = Yaml.parse(Assets.getText(yamlPath), Parser.options().useObjects());
 
 				frames = FlxAtlasFrames.fromSparrow("assets/images/" + yml.graphic + ".png", "assets/images/" + yml.graphic + ".xml");
 				
 				for (key in Reflect.fields(yml.animations))
 				{
-					trace(key);
 					var data = Reflect.field(yml.animations, key);
 					animation.addByPrefix(key, data.prefix, data.fps, data.loop);
-					addOffset(key, data.offset.x, data.offset.y);
+					addOffset(key, Std.parseFloat(data.offset.x), Std.parseFloat(data.offset.y));
 				}
+
+				if (Reflect.hasField(yml.animations, "danceLeft"))
+					playAnim('danceLeft');
+				else
+					playAnim('idle');
 
 				flipX = yml.flipX;
 
-				this.x += yml.position.x;
-				this.y += yml.position.y;
+				this.x += Std.parseFloat(yml.position.x);
+				this.y += Std.parseFloat(yml.position.y);
 		}
 
 		dance();
@@ -113,32 +117,16 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if (!curCharacter.startsWith('bf'))
-		{
-			if (animation.curAnim.name.startsWith('sing'))
-			{
-				holdTimer += elapsed;
-			}
-
-			var dadVar:Float = 4;
-
-			if (curCharacter == 'dad')
-				dadVar = 6.1;
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
-			{
-				dance();
-				holdTimer = 0;
-			}
-		}
-
-		switch (curCharacter)
-		{
-			case 'gf':
-				if (animation.curAnim.name == 'hairFall' && animation.curAnim.finished)
-					playAnim('danceRight');
-		}
-
 		super.update(elapsed);
+
+		if (animation.curAnim.name.startsWith('sing'))
+			holdTimer += elapsed;
+
+		if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished)
+			dance();
+
+		if (animation.curAnim.name == 'firstDeath' && animation.curAnim.finished)
+			playAnim('deathLoop');
 	}
 
 	private var danced:Bool = false;

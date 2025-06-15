@@ -1,6 +1,5 @@
 package;
 
-import Section.SwagSection;
 import Song.SwagSong;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -42,6 +41,8 @@ using StringTools;
 
 class PlayState extends MusicBeatState
 {
+	public static var instance:PlayState;
+	
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
 	public static var isStoryMode:Bool = false;
@@ -49,11 +50,13 @@ class PlayState extends MusicBeatState
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
 
+	public var scripts:Array<HScript> = [];
+
 	private var vocals:FlxSound;
 
 	private var dad:Character;
 	private var gf:Character;
-	private var boyfriend:Boyfriend;
+	private var boyfriend:Character;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -72,6 +75,7 @@ class PlayState extends MusicBeatState
 
 	private var gfSpeed:Int = 1;
 	private var health:Float = 1;
+	private var healthLerp:Float = 1;
 	private var combo:Int = 0;
 
 	private var healthBarBG:FlxSprite;
@@ -85,7 +89,10 @@ class PlayState extends MusicBeatState
 	private var camHUD:FlxCamera;
 	private var camGame:FlxCamera;
 
+	private var stage:Stage;
+
 	var songScore:Int = 0;
+	var scoreLerp:Float = 0;
 	var scoreTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
@@ -99,6 +106,7 @@ class PlayState extends MusicBeatState
 
 	override public function create()
 	{
+		instance = this;
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -119,103 +127,24 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(SONG.bpm);
 
 		curStage = "stage"; // placeholder thing
+		stage = new Stage(curStage);
+		add(stage);
+		scripts.push(stage.script);
 		// stage yml? not yet.
-		var stagePositions = {
-			bf: {x: 770, y: 450},
-			dad: {x: 100, y: 100},
-			gf: {x: 400, y: 130},
-		}
-
-		defaultCamZoom = 0.9;
-		var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic('assets/images/stageback.png');
-		bg.antialiasing = true;
-		bg.scrollFactor.set(0.9, 0.9);
-		bg.active = false;
-		add(bg);
-
-		var stageFront:FlxSprite = new FlxSprite(-650, 600).loadGraphic('assets/images/stagefront.png');
-		stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-		stageFront.updateHitbox();
-		stageFront.antialiasing = true;
-		stageFront.scrollFactor.set(0.9, 0.9);
-		stageFront.active = false;
-		add(stageFront);
-
-		var stageCurtains:FlxSprite = new FlxSprite(-500, -300).loadGraphic('assets/images/stagecurtains.png');
-		stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-		stageCurtains.updateHitbox();
-		stageCurtains.antialiasing = true;
-		stageCurtains.scrollFactor.set(1.3, 1.3);
-		stageCurtains.active = false;
-
-		add(stageCurtains);
 
 		var gfVersion:String = 'gf';
 
-		gf = new Character(stagePositions.gf.x, stagePositions.gf.y, gfVersion);
+		gf = new Character(0, 0, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
 		add(gf);
 
-		dad = new Character(stagePositions.dad.x, stagePositions.dad.y, SONG.player2);
-
-		var camPos:FlxPoint = FlxPoint.get(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
-
-		switch (SONG.player2)
-		{
-			case 'gf':
-				dad.setPosition(gf.x, gf.y);
-				gf.visible = false;
-			case "spooky":
-				dad.y += 200;
-			case "monster":
-				dad.y += 100;
-			case 'monster-christmas':
-				dad.y += 130;
-			case 'dad':
-				camPos.x += 400;
-			case 'pico':
-				camPos.x += 600;
-				dad.y += 300;
-			case 'parents-christmas':
-				dad.x -= 500;
-			case 'senpai':
-				dad.x += 150;
-				dad.y += 360;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-			case 'senpai-angry':
-				dad.x += 150;
-				dad.y += 360;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-			case 'spirit':
-				dad.x -= 150;
-				dad.y += 100;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-		}
-
-		boyfriend = new Boyfriend(stagePositions.gf.x, stagePositions.gf.y, SONG.player1);
-
-		// REPOSITIONING PER STAGE
-		switch (curStage)
-		{
-			case 'limo':
-				boyfriend.y -= 220;
-				boyfriend.x += 260;
-
-			case 'mall':
-				boyfriend.x += 200;
-
-			case 'mallEvil':
-				boyfriend.x += 320;
-				dad.y -= 80;
-			case 'school':
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
-		}
-
+		dad = new Character(0, 0, SONG.player2);
 		add(dad);
+
+		boyfriend = new Character(0, 0, SONG.player1, true);
 		add(boyfriend);
+
+		for (script in scripts) script.callFunc("create");
 
 		Conductor.songPosition = -5000;
 
@@ -234,9 +163,6 @@ class PlayState extends MusicBeatState
 		// add(strumLine);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-
-		camFollow.setPosition(camPos.x, camPos.y);
-
 		add(camFollow);
 
 		FlxG.camera.follow(camFollow, LOCKON, 1);
@@ -253,14 +179,15 @@ class PlayState extends MusicBeatState
 		add(healthBarBG);
 
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
-			'health', 0, 2);
+			'healthLerp', 0, 2);
+		healthBar.numDivisions = 400;
 		healthBar.scrollFactor.set();
 		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
 		// healthBar
 		add(healthBar);
 
 		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat("assets/fonts/vcr.ttf", 16, FlxColor.WHITE, RIGHT);
+		scoreTxt.setFormat("assets/fonts/vcr.ttf", 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
@@ -282,6 +209,8 @@ class PlayState extends MusicBeatState
 
 		startingSong = true;
 		startCountdown();
+
+		for (script in scripts) script.callFunc("postCreate");
 
 		super.create();
 	}
@@ -418,7 +347,7 @@ class PlayState extends MusicBeatState
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
-		var noteData:Array<SwagSection>;
+		var noteData:Array<Section>;
 
 		// NEW SHIT
 		noteData = songData.notes;
@@ -628,7 +557,14 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score:" + songScore;
+		scoreLerp = FlxMath.lerp(scoreLerp, songScore, 0.15);
+		if (scoreLerp > songScore - 1)
+			scoreLerp = songScore;
+		healthLerp = FlxMath.lerp(healthLerp, health, 0.15);
+
+		// what?????
+		healthBar.value = healthLerp;
+		scoreTxt.text = "Score:" + FlxStringUtil.formatMoney(scoreLerp, false, true);
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -648,13 +584,16 @@ class PlayState extends MusicBeatState
 		iconP2.scale.x = FlxMath.lerp(1, iconP2.scale.x, Math.exp(-elapsed * 9));
 		iconP2.scale.y = iconP2.scale.x;
 
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
+		iconP1.centerOrigin();
+		iconP2.centerOrigin();
 
 		var iconOffset:Int = 26;
 
-		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
-		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
+		iconP1.x = healthBar.x
+            + (healthBar.width * (FlxMath.remapToRange(healthBar.value, 0, 2, 100, 0) * 0.01) - 26);
+		iconP2.x = healthBar.x
+            + (healthBar.width * (FlxMath.remapToRange(healthBar.value, 0, 2, 100, 0) * 0.01))
+            - (iconP2.width - 26);
 
 		if (health > 2)
 			health = 2;
@@ -784,7 +723,7 @@ class PlayState extends MusicBeatState
 
 		if (health <= 0)
 		{
-			boyfriend.stunned = true;
+			playerControllable = false;
 
 			persistentUpdate = false;
 			persistentDraw = false;
@@ -1127,6 +1066,7 @@ class PlayState extends MusicBeatState
 		curSection += 1;
 	}
 
+	var playerControllable:Bool = true;
 	private function keyShit():Void
 	{
 		// HOLDING
@@ -1148,7 +1088,7 @@ class PlayState extends MusicBeatState
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
 
 		// FlxG.watch.addQuick('asdfa', upP);
-		if ((upP || rightP || downP || leftP) && !boyfriend.stunned && generatedMusic)
+		if ((upP || rightP || downP || leftP) && playerControllable && generatedMusic)
 		{
 			boyfriend.holdTimer = 0;
 
@@ -1248,7 +1188,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if ((up || right || down || left) && !boyfriend.stunned && generatedMusic)
+		if ((up || right || down || left) && playerControllable && generatedMusic)
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{
@@ -1321,7 +1261,7 @@ class PlayState extends MusicBeatState
 
 	function noteMiss(direction:Int = 1):Void
 	{
-		if (!boyfriend.stunned)
+		if (playerControllable)
 		{
 			health -= 0.04;
 			if (combo > 5)
@@ -1336,12 +1276,12 @@ class PlayState extends MusicBeatState
 			// FlxG.sound.play('assets/sounds/missnote1' + TitleState.soundExt, 1, false);
 			// FlxG.log.add('played imss note');
 
-			boyfriend.stunned = true;
+			playerControllable = false;
 
 			// get stunned for 5 seconds
 			new FlxTimer().start(5 / 60, function(tmr:FlxTimer)
 			{
-				boyfriend.stunned = false;
+				playerControllable = true;
 			});
 
 			switch (direction)

@@ -1,6 +1,5 @@
 package;
 
-import Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
@@ -10,7 +9,7 @@ using StringTools;
 typedef SwagSong =
 {
 	var song:String;
-	var notes:Array<SwagSection>;
+	var notes:Array<Section>;
 	var bpm:Int;
 	var needsVoices:Bool;
 	var speed:Float;
