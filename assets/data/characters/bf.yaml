@@ -1,0 +1,134 @@
+animations:
+  scared:
+    indices: []
+    fps: 24
+    prefix: BF idle shaking
+    loop: true
+    offset:
+      - x: -4
+      - y: 0
+  attack:
+    indices: []
+    fps: 24
+    prefix: boyfriend attack
+    loop: false
+    offset:
+      - x: 294
+      - y: 267
+  singDOWN:
+    indices: []
+    fps: 24
+    prefix: BF NOTE DOWN0
+    loop: false
+    offset:
+      - x: 20
+      - y: -51
+  singRIGHTmiss:
+    indices: []
+    fps: 24
+    prefix: BF NOTE RIGHT MISS
+    loop: false
+    offset:
+      - x: -44
+      - y: 22
+  singUP:
+    indices: []
+    fps: 24
+    prefix: BF NOTE UP0
+    loop: false
+    offset:
+      - x: -46
+      - y: 27
+  singLEFTmiss:
+    indices: []
+    fps: 24
+    prefix: BF NOTE LEFT MISS
+    loop: false
+    offset:
+      - x: 7
+      - y: 19
+  pre-attack:
+    indices: []
+    fps: 24
+    prefix: bf pre attack
+    loop: false
+    offset:
+      - x: -40
+      - y: -40
+  idle:
+    indices: []
+    fps: 24
+    prefix: BF idle dance
+    loop: false
+    offset:
+      - x: -5
+      - y: 0
+  hey:
+    indices: []
+    fps: 24
+    prefix: BF HEY
+    loop: false
+    offset:
+      - x: -3
+      - y: 5
+  singDOWNmiss:
+    indices: []
+    fps: 24
+    prefix: BF NOTE DOWN MISS
+    loop: false
+    offset:
+      - x: -15
+      - y: -19
+  singRIGHT:
+    indices: []
+    fps: 24
+    prefix: BF NOTE RIGHT0
+    loop: false
+    offset:
+      - x: -48
+      - y: -7
+  singUPmiss:
+    indices: []
+    fps: 24
+    prefix: BF NOTE UP MISS
+    loop: false
+    offset:
+      - x: -46
+      - y: 27
+  singLEFT:
+    indices: []
+    fps: 24
+    prefix: BF NOTE LEFT0
+    loop: false
+    offset:
+      - x: 5
+      - y: -6
+  hurt:
+    indices: []
+    fps: 24
+    prefix: BF hit
+    loop: false
+    offset:
+      - x: 14
+      - y: 18
+  dodge:
+    indices: []
+    fps: 24
+    prefix: boyfriend dodge
+    loop: false
+    offset:
+      - x: -10
+      - y: -16
+position:
+  - x: 0
+  - y: 0
+cameraOffset:
+  - x: -100
+  - y: -100
+
+flipX: true
+icon: bf
+antialiasing: true
+graphic: BOYFRIEND
+render: "sparrow"
+scale: 1

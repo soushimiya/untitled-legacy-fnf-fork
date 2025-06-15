@@ -24,6 +24,11 @@
 			"name": "hscript-improved",
 			"type": "git",
 			"url": "https://github.com/CodenameCrew/hscript-improved"
+		},
+		{
+			"name": "yaml",
+			"type": "haxelib",
+			"version": null
 		}
 	]
 }

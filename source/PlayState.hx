@@ -119,6 +119,13 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(SONG.bpm);
 
 		curStage = "stage"; // placeholder thing
+		// stage yml? not yet.
+		var stagePositions = {
+			bf: {x: 770, y: 450},
+			dad: {x: 100, y: 100},
+			gf: {x: 400, y: 130},
+		}
+
 		defaultCamZoom = 0.9;
 		var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic('assets/images/stageback.png');
 		bg.antialiasing = true;
@@ -145,11 +152,11 @@ class PlayState extends MusicBeatState
 
 		var gfVersion:String = 'gf';
 
-		gf = new Character(400, 130, gfVersion);
+		gf = new Character(stagePositions.gf.x, stagePositions.gf.y, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
 		add(gf);
 
-		dad = new Character(100, 100, SONG.player2);
+		dad = new Character(stagePositions.dad.x, stagePositions.dad.y, SONG.player2);
 
 		var camPos:FlxPoint = FlxPoint.get(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
 
@@ -185,7 +192,7 @@ class PlayState extends MusicBeatState
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 		}
 
-		boyfriend = new Boyfriend(770, 450, SONG.player1);
+		boyfriend = new Boyfriend(stagePositions.gf.x, stagePositions.gf.y, SONG.player1);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -632,11 +639,6 @@ class PlayState extends MusicBeatState
 			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 		}
 
-		if (FlxG.keys.justPressed.SEVEN)
-		{
-			FlxG.switchState(new ChartingState());
-		}
-
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
@@ -945,15 +947,11 @@ class PlayState extends MusicBeatState
 
 				FlxG.switchState(new StoryMenuState());
 
-				// if ()
-				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
-
 				if (SONG.validScore)
 				{
 					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 				}
 
-				FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
 				FlxG.save.flush();
 			}
 			else
