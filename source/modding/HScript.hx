@@ -1,4 +1,4 @@
-package;
+package modding;
 
 import hscript.*;
 import flixel.util.FlxDestroyUtil;

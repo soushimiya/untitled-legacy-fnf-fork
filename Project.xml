@@ -34,12 +34,7 @@
 	<classpath name="source" />
 
 	<assets path="assets" />
-	<!-- <template path='mods' /> -->
-	
-	<assets path="assets/music" include="*.mp3" if="web"/>
-	<assets path="assets/music" include="*.ogg" unless="web"/>
-	<assets path="assets/sounds" include="*.mp3" if="web" />
-	<assets path="assets/sounds" include="*.ogg" unless="web" />
+	<assets path='example_mods' rename='mods' embed='false' type='template'/>
 
 	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO

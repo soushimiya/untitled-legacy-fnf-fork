@@ -2,6 +2,7 @@ package;
 
 import flixel.group.FlxGroup;
 import openfl.Assets;
+import modding.HScript;
 import yaml.*;
 
 class Stage extends FlxGroup
